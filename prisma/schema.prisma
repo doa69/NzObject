@@ -1,0 +1,28 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model ApiKey {
+  id              Int      @id @default(autoincrement())
+  accessKeyId     String   @unique
+  secretAccessKey String
+  plan            String   @default("free")
+  storageUsed     BigInt   @default(0)
+  buckets         Bucket[]
+}
+
+model Bucket {
+  id          String   @id @default(uuid())
+  name        String
+  accessKeyId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  apiKey      ApiKey   @relation(fields: [accessKeyId], references: [accessKeyId])
+
+  @@unique([name, accessKeyId])
+}
